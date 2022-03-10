@@ -42,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/home","/home/**","/post","/post/**").access("hasRole('ROLE_USER')")
+                .antMatchers("/home", "/home/**", "/post", "/post/**").access("hasRole('ROLE_USER')")
                 .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
                 .antMatchers("/**").permitAll()
                 .and()
@@ -69,12 +69,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     }
+
     @Bean
-    public PasswordEncoder encoder(){
+    public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
-    public JwtUtil getJwtUtil(){
+    public JwtUtil getJwtUtil() {
         return new JwtUtil();
     }
 

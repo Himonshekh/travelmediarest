@@ -28,13 +28,15 @@ public class PostService {
     private LocationRepository locationRepository;
 
 
-    public void deletePostById(Long id){
+    public void deletePostById(Long id) {
         postRepository.deleteById(id);
     }
 
     public void updatePostByPin(Long id, String mail) {
         resetPinPost(mail);
         Optional<Post> postOptional = postRepository.findById(id);
+//        Post post1 = postRepository.findById(id).orElseThrow(()->new IllegalStateException("not found"));
+
         Post post = postOptional.get();
         post.setPined(1L);
         postRepository.save(post);
@@ -66,13 +68,14 @@ public class PostService {
 
     public PostDto fetchPostById(Long id) {
         Optional<Post> postOptional = postRepository.findById(id);
+        if (postOptional.isEmpty()) return null;
         Post post = postOptional.get();
         return new PostDto(post.getId(), post.getUser(), post.getStatus(), post.getLocation().getName(), post.getPrivacy(), post.getPined());
     }
 
     public void saveThisPost(PostDto postDto, String mail) {
         Post post = new Post(toUser(mail), postDto.getStatus(), getLocation(postDto.getLocation()), postDto.getPrivacy());
-        postRepository.save(post);
+        postRepository.saveAndFlush(post);
 
         log.info("post save successfully");
 
@@ -90,11 +93,13 @@ public class PostService {
         return user1;
     }
 
-    public Location getLocation(String location) {
+    public Location getLocation(String loc) {
 
-        Location location1 = locationRepository.findByName(location);
-
-        return location1;
+//        Optional<Location> location = locationRepository.findByName(loc);
+//        Location location = locationRepository.findByName(loc).orElse(null);
+        Location location = locationRepository.findByName(loc).orElseThrow(() -> new IllegalStateException("Location not found"));
+        log.info("get location!!!!!!!");
+        return location;
     }
 
 

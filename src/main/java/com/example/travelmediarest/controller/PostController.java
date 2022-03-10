@@ -91,11 +91,11 @@ public class PostController {
 
     @GetMapping("/delete/{id}")
     @Transactional
-    public ResponseEntity<Map<String, Object>> deletePost(@PathVariable Long id){
+    public ResponseEntity<Map<String, Object>> deletePost(@PathVariable Long id) {
         Map<String, Object> objects = new HashMap<>();
-        log.info("delete this post :" +id);
+        log.info("delete this post :" + id);
         postService.deletePostById(id);
-        objects.put("delete","delete post Successfully "+id);
+        objects.put("delete", "delete post Successfully " + id);
         return new ResponseEntity<>(objects, HttpStatus.OK);
     }
 }

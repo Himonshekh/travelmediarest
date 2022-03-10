@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 //@RequiredArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PUBLIC,force = true)
+@NoArgsConstructor(access = AccessLevel.PUBLIC, force = true)
 public class PrivacyDto {
-    private List<String> privacies=new ArrayList<>();
+    private List<String> privacies = new ArrayList<>();
 }

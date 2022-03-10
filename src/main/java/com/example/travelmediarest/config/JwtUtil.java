@@ -17,20 +17,21 @@ import java.util.Date;
 @Slf4j
 public class JwtUtil {
     @Value("${jwtSecret}")
-    private String secret;
+    private String secret="secrete";
     @Value("${jwtExp}")
-    private Long jwtExpirationInMs;
+    private Long jwtExpirationInMs=1000L;
 
-    public String generateToken(String username)throws IllegalArgumentException, JWTCreationException {
+    public String generateToken(String username) throws IllegalArgumentException, JWTCreationException {
         return JWT.create()
                 .withSubject("travel media")
-                .withClaim("username",username)
+                .withClaim("username", username)
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(new Date().getTime()+jwtExpirationInMs))
+                .withExpiresAt(new Date(new Date().getTime() + jwtExpirationInMs))
                 .withIssuer("travel media agency")
                 .sign(Algorithm.HMAC256(secret));
     }
-    public String validateTokenAndRetrieveSubject(String token)throws JWTVerificationException{
+
+    public String validateTokenAndRetrieveSubject(String token) throws JWTVerificationException {
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(secret))
                 .withSubject("travel media")
                 .withIssuer("travel media agency")

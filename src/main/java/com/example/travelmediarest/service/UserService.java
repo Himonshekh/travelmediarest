@@ -11,9 +11,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -32,34 +34,38 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     private AuthenticationManager authenticationManager;
 
-    public UserService(AuthenticationManager authenticationManager,PasswordEncoder passwordEncoder){
-        this.authenticationManager=authenticationManager;
-        this.passwordEncoder=passwordEncoder;
+    public UserService(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
+        this.authenticationManager = authenticationManager;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public User isAlreadyOrSaveUSer(RegistrationDto registrationDto){
-        Optional<User>userOptional = userRepository.findByMail(registrationDto.getMail());
-        if(userOptional.isPresent())return null;
+    public User isAlreadyOrSaveUSer(RegistrationDto registrationDto) {
+        Optional<User> userOptional = userRepository.findByMail(registrationDto.getMail());
+
+        if (userOptional.isPresent()) return null;
+
         User user = registrationDto.toUser(passwordEncoder);
         userRepository.save(user);
         return user;
     }
-    public Map<String, Object> authenticateByCredentials(UserDto userDto){
-        try{
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDto.getMail(),userDto.getPassword());
+
+    public Map<String, Object> authenticateByCredentials(UserDto userDto) {
+        try {
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDto.getMail(), userDto.getPassword());
             authenticationManager.authenticate(usernamePasswordAuthenticationToken);
             String token = jwtUtil.generateToken(userDto.getMail());
-            return Collections.singletonMap("Jwt-token",token);
-        }catch (AuthenticationException authenticationException){
-            authenticationException.printStackTrace();
+            return Collections.singletonMap("Jwt-token", token);
+        } catch (AuthenticationException authenticationException) {
+//            authenticationException.printStackTrace();
             throw new RuntimeException("invalid login Credentials");
         }
     }
-    public User fetchUserByMail(String mail){
-        Optional<User> userOptionalr = userRepository.findByMail(mail);
-        User user=null;
-        if(userOptionalr.isPresent()){
-            user=userOptionalr.get();
+
+    public User fetchUserByMail(String mail) {
+        Optional<User> userOptional = userRepository.findByMail(mail);
+        User user = null;
+        if (userOptional.isPresent()) {
+            user = userOptional.get();
         }
         return user;
     }

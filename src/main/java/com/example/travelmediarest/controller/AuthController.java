@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,32 +32,35 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String,Object>> registrationHandler(@Valid @RequestBody RegistrationDto registrationDto, Errors errors){
-        Map<String,Object> objectMap = new HashMap<>();
-        if(errors.hasErrors()){
-            log.info("See errors: "+errors);
-            objectMap.put("error",errors);
+    public ResponseEntity<Map<String, Object>> registrationHandler(@Valid @RequestBody RegistrationDto registrationDto, Errors errors, BeanPropertyBindingResult res) {
+        Map<String, Object> objectMap = new HashMap<>();
+//        log.info("bean errorss::::  "+res.getAllErrors().get(1).getDefaultMessage());
+        if (errors.hasErrors()) {
+//            log.info("See errors: " + errors.getAllErrors().size());
+//            objectMap.put("error", errors);
             return new ResponseEntity<>(objectMap, HttpStatus.BAD_REQUEST);
         }
+        log.info("where????");
         User user = userService.isAlreadyOrSaveUSer(registrationDto);
-        if(user==null){
-            objectMap.put("error",new String[]{"mail already in use"});
+        if (user == null) {
+            objectMap.put("error", new String[]{"mail already in use"});
             return new ResponseEntity<>(objectMap, HttpStatus.ALREADY_REPORTED);
-        }else{
-            objectMap.put("account",user);
+        } else {
+            objectMap.put("account", user);
         }
         return new ResponseEntity<>(objectMap, HttpStatus.CREATED);
     }
+
     @PostMapping("/login")
-    public ResponseEntity<Map<String,Object>> loginHandler(@RequestBody UserDto userDto){
+    public ResponseEntity<Map<String, Object>> loginHandler(@RequestBody UserDto userDto) {
         Map<String, Object> objectMap = new HashMap<>();
-        try{
+        try {
             objectMap = userService.authenticateByCredentials(userDto);
-            return new ResponseEntity<>(objectMap,HttpStatus.OK);
-        }catch (Exception e){
+            return new ResponseEntity<>(objectMap, HttpStatus.OK);
+        } catch (Exception e) {
             e.printStackTrace();
-            objectMap.put("error" , new RuntimeException("invalid login Credentials"));
-            return new ResponseEntity<>(objectMap,HttpStatus.NOT_FOUND);
+            objectMap.put("error", new RuntimeException("invalid login Credentials"));
+            return new ResponseEntity<>(objectMap, HttpStatus.NOT_FOUND);
         }
     }
 }

@@ -15,7 +15,7 @@ public class LocationService {
     @Qualifier("locationRepository")
     LocationRepository locationRepository;
 
-    public List<Location> fetchAllLocation(){
+    public List<Location> fetchAllLocation() {
         List<Location> locationList = locationRepository.findAll();
         return locationList;
     }

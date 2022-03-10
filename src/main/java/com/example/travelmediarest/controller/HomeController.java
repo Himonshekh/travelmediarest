@@ -31,39 +31,40 @@ public class HomeController {
     @Qualifier("userService")
     UserService userService;
 
-    @ModelAttribute(name="postDto")
-    public PostDto postDto(){
+    @ModelAttribute(name = "postDto")
+    public PostDto postDto() {
         return new PostDto();
     }
+
     @ModelAttribute("privacyDto")
-    public PrivacyDto privacyDto(){
+    public PrivacyDto privacyDto() {
         return new PrivacyDto();
     }
 
     @GetMapping
-    public ResponseEntity<Map<String,Object>> getHomePage(@AuthenticationPrincipal String user){
-        log.info("User info::: "+user);
-        Map<String,Object>objects = new HashMap<>();
+    public ResponseEntity<Map<String, Object>> getHomePage(@AuthenticationPrincipal String user) {
+        log.info("User info::: " + user);
+        Map<String, Object> objects = new HashMap<>();
 
         List<PostDto> postDtoList = postService.fetchForHomePage(user);
         com.example.travelmediarest.model.User user1 = userService.fetchUserByMail(user);
-        List<Location>locationList = locationService.fetchAllLocation();
+        List<Location> locationList = locationService.fetchAllLocation();
 
 //        postDtoList.add(new PostDto(1L,user1,"status done","dhaka","public",0L));
 
-        objects.put("postDtoList",postDtoList);
-        objects.put("user",user1);
-        objects.put("locationList",locationList);
+        objects.put("postDtoList", postDtoList);
+        objects.put("user", user1);
+        objects.put("locationList", locationList);
         return new ResponseEntity<>(objects, HttpStatus.OK);
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<Map<String,Object>> GoProfilePage(@AuthenticationPrincipal String user){
-        log.info("user profile: "+user);
-        Map<String,Object>objects = new HashMap<>();
+    public ResponseEntity<Map<String, Object>> GoProfilePage(@AuthenticationPrincipal String user) {
+        log.info("user profile: " + user);
+        Map<String, Object> objects = new HashMap<>();
         List<PostDto> postDtoList = postService.fetchPostByUser(user);
-        objects.put("username",user);
-        objects.put("postDtoList",postDtoList);
+        objects.put("username", user);
+        objects.put("postDtoList", postDtoList);
         return new ResponseEntity<>(objects, HttpStatus.OK);
     }
 //    @GetMapping("/friends")

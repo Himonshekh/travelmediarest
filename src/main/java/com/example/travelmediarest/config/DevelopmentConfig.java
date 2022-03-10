@@ -10,10 +10,11 @@ import org.springframework.context.annotation.Configuration;
 public class DevelopmentConfig {
 
     @Bean
-    public CommandLineRunner dataLoader(LocationRepository locationRepository){
-        return  new CommandLineRunner() {
+    public CommandLineRunner dataLoader(LocationRepository locationRepository) {
+        return new CommandLineRunner() {
             @Override
             public void run(String... args) throws Exception {
+                System.out.println("CommandLineRunner location");
                 locationRepository.save(new Location("Dhaka"));
                 locationRepository.save(new Location("Sylhet"));
                 locationRepository.save(new Location("Dinajpur"));
