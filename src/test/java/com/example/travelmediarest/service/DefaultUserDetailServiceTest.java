@@ -55,16 +55,27 @@ class DefaultUserDetailServiceTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Test
-    @Disabled
-    void registrationSaveTest() {
-//        Mockito.when(userService.isAlreadyOrSaveUSer(any(RegistrationDto.class))).thenReturn(new User("test", "test", "test"));
-
+    @BeforeAll
+    public static void registerUser(@Autowired UserRepository userRepository, @Autowired PasswordEncoder passwordEncoder) {
         RegistrationDto registrationDto = new RegistrationDto();
         registrationDto.setMail("h");
         registrationDto.setUsername("h");
         registrationDto.setPassword("h");
         registrationDto.setConfirm("h");
+        userRepository.saveAndFlush(registrationDto.toUser(passwordEncoder));
+        log.info("register successfully");
+    }
+
+    @Test
+//    @Disabled
+    void registrationSaveTest() {
+//        Mockito.when(userService.isAlreadyOrSaveUSer(any(RegistrationDto.class))).thenReturn(new User("test", "test", "test"));
+
+        RegistrationDto registrationDto = new RegistrationDto();
+        registrationDto.setMail("a");
+        registrationDto.setUsername("a");
+        registrationDto.setPassword("a");
+        registrationDto.setConfirm("a");
         userRepository.saveAndFlush(registrationDto.toUser(passwordEncoder));
 
         User savedUser;
@@ -77,17 +88,6 @@ class DefaultUserDetailServiceTest {
         savedUser = userService.isAlreadyOrSaveUSer(registrationDto);
         assertThat(savedUser).isNotNull();
 //         assertEquals(savedUser,"");
-    }
-
-    @BeforeAll
-    public static void registerUser(@Autowired UserRepository userRepository, @Autowired PasswordEncoder passwordEncoder) {
-        RegistrationDto registrationDto = new RegistrationDto();
-        registrationDto.setMail("h");
-        registrationDto.setUsername("h");
-        registrationDto.setPassword("h");
-        registrationDto.setConfirm("h");
-        userRepository.saveAndFlush(registrationDto.toUser(passwordEncoder));
-        log.info("register successfully");
     }
 
     @Test
@@ -134,18 +134,21 @@ class DefaultUserDetailServiceTest {
     }
 
     @Test
-    @Disabled
+//    @Disabled
     void fetchUserByMailTest() {
-        String mail = "h";
-        String a = passwordEncoder.encode("a");
-        String b = passwordEncoder.encode("a");
-        log.info("A "+a);
-        log.info("B "+b);
-        User expected = new User("h","h","h");
+        RegistrationDto registrationDto = new RegistrationDto();
+        registrationDto.setMail("b");
+        registrationDto.setUsername("b");
+        registrationDto.setPassword("b");
+        registrationDto.setConfirm("b");
+        userRepository.saveAndFlush(registrationDto.toUser(passwordEncoder));
+        String mail = "b";
+
+        User expected = new User("b","b","b");
         User response = userService.fetchUserByMail(mail);
         response.setId(null);
-        assertEquals(passwordEncoder.matches("h",response.getPassword()),true );
-        response.setPassword("h");
+        assertEquals(passwordEncoder.matches("b",response.getPassword()),true );
+        response.setPassword("b");
         log.info("response :"+response);
         log.info("expected :"+expected);
         assertEquals(expected,response);

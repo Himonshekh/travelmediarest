@@ -13,9 +13,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -42,12 +47,12 @@ public class HomeController {
     }
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getHomePage(@AuthenticationPrincipal String user) {
+    public ResponseEntity<Map<String, Object>> getHomePage(@AuthenticationPrincipal User user) {
         log.info("User info::: " + user);
         Map<String, Object> objects = new HashMap<>();
 
-        List<PostDto> postDtoList = postService.fetchForHomePage(user);
-        com.example.travelmediarest.model.User user1 = userService.fetchUserByMail(user);
+        List<PostDto> postDtoList = postService.fetchForHomePage(user.getUsername());
+        com.example.travelmediarest.model.User user1 = userService.fetchUserByMail(user.getUsername());
         List<Location> locationList = locationService.fetchAllLocation();
 
 //        postDtoList.add(new PostDto(1L,user1,"status done","dhaka","public",0L));
@@ -59,10 +64,10 @@ public class HomeController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<Map<String, Object>> GoProfilePage(@AuthenticationPrincipal String user) {
+    public ResponseEntity<Map<String, Object>> GoProfilePage(@AuthenticationPrincipal User user) {
         log.info("user profile: " + user);
         Map<String, Object> objects = new HashMap<>();
-        List<PostDto> postDtoList = postService.fetchPostByUser(user);
+        List<PostDto> postDtoList = postService.fetchPostByUser(user.getUsername());
         objects.put("username", user);
         objects.put("postDtoList", postDtoList);
         return new ResponseEntity<>(objects, HttpStatus.OK);

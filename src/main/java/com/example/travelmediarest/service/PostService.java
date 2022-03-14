@@ -1,15 +1,16 @@
 package com.example.travelmediarest.service;
 
 import com.example.travelmediarest.dto.PostDto;
+import com.example.travelmediarest.mapper.PostDtoMapper;
 import com.example.travelmediarest.model.Location;
 import com.example.travelmediarest.model.Post;
+import com.example.travelmediarest.model.User;
 import com.example.travelmediarest.repository.LocationRepository;
 import com.example.travelmediarest.repository.PostRepository;
 import com.example.travelmediarest.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -32,8 +33,10 @@ public class PostService {
         postRepository.deleteById(id);
     }
 
-    public void updatePostByPin(Long id, String mail) {
+    public Post updatePostByPin(Long id, String mail) {
         resetPinPost(mail);
+        log.info("test update: " + id + " " + mail);
+
         Optional<Post> postOptional = postRepository.findById(id);
 //        Post post1 = postRepository.findById(id).orElseThrow(()->new IllegalStateException("not found"));
 
@@ -41,13 +44,19 @@ public class PostService {
         post.setPined(1L);
         postRepository.save(post);
         log.info("pinned successfully");
+        return post;
     }
 
     public void resetPinPost(String mail) {
         List<Post> posts = postRepository.findAll();
         Optional<com.example.travelmediarest.model.User> userOptional = userRepository.findByMail(mail);
         com.example.travelmediarest.model.User user = null;
-        user = userOptional.get();
+        if (userOptional.isPresent()) {
+            user = userOptional.get();
+        } else {
+            return;
+        }
+        log.info("user find?: " + user);
         Long id = user.getId();
         for (Post post : posts) {
             if (post.getUser().getId().equals(id)) {
@@ -57,13 +66,15 @@ public class PostService {
         postRepository.saveAll(posts);
     }
 
-    public void updateThePost(PostDto postDto) {
+    public PostDto updateThePost(PostDto postDto) {
         Optional<Post> postOptional = postRepository.findById(postDto.getId());
         Post post = postOptional.get();
         post.setStatus(postDto.getStatus());
         post.setLocation(getLocation(postDto.getLocation()));
         post.setPrivacy(postDto.getPrivacy());
         postRepository.save(post);
+        postDto = PostDtoMapper.postToPostDtoMapper(post);
+        return postDto;
     }
 
     public PostDto fetchPostById(Long id) {
@@ -73,19 +84,22 @@ public class PostService {
         return new PostDto(post.getId(), post.getUser(), post.getStatus(), post.getLocation().getName(), post.getPrivacy(), post.getPined());
     }
 
-    public void saveThisPost(PostDto postDto, String mail) {
+    public Post saveThisPost(PostDto postDto, String mail) {
+        log.info("test phase:  postdto : " + postDto + "\nand user " + mail);
         Post post = new Post(toUser(mail), postDto.getStatus(), getLocation(postDto.getLocation()), postDto.getPrivacy());
-        postRepository.saveAndFlush(post);
+        post = postRepository.saveAndFlush(post);
+        log.info("test phase:  post: " + post);
 
         log.info("post save successfully");
-
+        return post;
     }
 
     public com.example.travelmediarest.model.User toUser(String mail) {
-
+        List<User> users = userRepository.findAll();
+        log.info("checking users: " + users);
         Optional<com.example.travelmediarest.model.User> userOptional = userRepository.findByMail(mail);
         com.example.travelmediarest.model.User user1 = null;
-
+        log.info("userOptional :: " + userOptional);
         if (userOptional.isPresent()) {
             user1 = userOptional.get();
         }

@@ -2,6 +2,7 @@ package com.example.travelmediarest.controller;
 
 import com.example.travelmediarest.dto.PostDto;
 import com.example.travelmediarest.model.Location;
+import com.example.travelmediarest.model.Post;
 import com.example.travelmediarest.service.LocationService;
 import com.example.travelmediarest.service.PostService;
 import lombok.extern.slf4j.Slf4j;
@@ -38,22 +39,26 @@ public class PostController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Map<String, Object>> createPost(@Valid @RequestBody PostDto postDto, Errors errors, @AuthenticationPrincipal String user) {
+    public ResponseEntity<PostDto> createPost(@Valid @RequestBody PostDto postDto, @AuthenticationPrincipal User user) {
         log.info("RequestBody " + postDto);
 
-        Map<String, Object> objects = new HashMap<>();
+//        Map<String, Object> objects = new HashMap<>();
 
-        if (errors.hasErrors()) {
-            objects.put("postDto", postDto);
-            objects.put("errors", errors);
+//        if (errors.hasErrors()) {
+//            objects.put("postDto", postDto);
+//            objects.put("errors", errors);
+//
+//            return new ResponseEntity<>(objects, HttpStatus.BAD_REQUEST);
+//        }
 
-            return new ResponseEntity<>(objects, HttpStatus.BAD_REQUEST);
-        }
+        Post post = postService.saveThisPost(postDto, user.getUsername());
+        postDto.setId(post.getId());
+        postDto.setUser(post.getUser());
+        postDto.setPined(post.getPined());
+//        objects.put("successfully created ", postDto);
 
-        postService.saveThisPost(postDto, user);
-        objects.put("successfully created ", postDto);
-
-        return new ResponseEntity<>(objects, HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(postDto);
     }
 
     @GetMapping("/edit/{id}")
@@ -76,16 +81,18 @@ public class PostController {
             objects.put("Error", errors);
             return new ResponseEntity<>(objects, HttpStatus.BAD_REQUEST);
         }
-        postService.updateThePost(postDto);
-        objects.put("updated", postDto);
+        postDto = postService.updateThePost(postDto);
+        objects.put("postDto", postDto);
         return new ResponseEntity<>(objects, HttpStatus.OK);
     }
 
     @GetMapping("/pined/{id}")
-    public ResponseEntity<Map<String, Object>> pinedPost(@PathVariable Long id, @AuthenticationPrincipal String user) {
+    public ResponseEntity<Map<String, Object>> pinedPost(@PathVariable Long id, @AuthenticationPrincipal User user) {
         Map<String, Object> objects = new HashMap<>();
-        postService.updatePostByPin(id, user);
-        objects.put("pin", "pin post successfully");
+        log.info("test: " + user + " " + id);
+        Post post = postService.updatePostByPin(id, user.getUsername());
+        log.info("test pined: " + user + " " + id);
+        objects.put("post", post);
         return new ResponseEntity<>(objects, HttpStatus.OK);
     }
 

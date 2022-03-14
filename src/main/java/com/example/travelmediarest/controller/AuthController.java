@@ -32,7 +32,7 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> registrationHandler(@Valid @RequestBody RegistrationDto registrationDto, Errors errors, BeanPropertyBindingResult res) {
+    public ResponseEntity<Map<String, Object>> registrationHandler(@Valid @RequestBody RegistrationDto registrationDto, Errors errors) {
         Map<String, Object> objectMap = new HashMap<>();
 //        log.info("bean errorss::::  "+res.getAllErrors().get(1).getDefaultMessage());
         if (errors.hasErrors()) {
@@ -46,7 +46,7 @@ public class AuthController {
             objectMap.put("error", new String[]{"mail already in use"});
             return new ResponseEntity<>(objectMap, HttpStatus.ALREADY_REPORTED);
         } else {
-            objectMap.put("account", user);
+            objectMap.put("user", user);
         }
         return new ResponseEntity<>(objectMap, HttpStatus.CREATED);
     }
